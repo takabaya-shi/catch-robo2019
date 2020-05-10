@@ -1,0 +1,125 @@
+/*
+ * servomotor.c
+ *
+ *  Created on: 2019/08/29
+ *      Author: tomok
+ */
+
+
+#include "servomotor.h"
+
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim2;
+
+/*
+extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim13;
+extern TIM_HandleTypeDef htim14;
+extern TIM_HandleTypeDef htim9;
+extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim1;
+*/
+
+//引数ｘで与えられた角度に相当するPWMの値を返す（MAXは10000）
+long map(long x,long in_min,long in_max,long out_min,long out_max){
+	return (x-in_min)*(out_max-out_min)/(in_max-in_min)+out_min;
+}
+
+//引数で与えられた角度にサーボを動かす
+void ServoSetAngle(int angle,int servo_id){
+	long PWM;
+
+	if(servo_id == SERVO9_ID){
+		//角度範囲を制限
+		angle  = fmaxf(fminf(angle, SERVO1_MAX_ANGLE), SERVO1_MIN_ANGLE);
+		//対応するPWMの値を取得
+		PWM = map(angle,SERVO1_MIN_ANGLE,SERVO1_MAX_ANGLE,SERVO_LOW,SERVO_HIGH);
+		__HAL_TIM_SET_COMPARE(&SERVO9_TIM_HANDLER,SERVO9_TIM_CH,PWM);
+
+	}
+	if(servo_id == AUTO_SERVO1_ID){
+		//角度範囲を制限
+		angle  = fmaxf(fminf(angle, AUTO_SERVO1_MAX_ANGLE), AUTO_SERVO1_MIN_ANGLE);
+		//対応するPWMの値を取得
+		PWM = map(angle,AUTO_SERVO1_MIN_ANGLE,AUTO_SERVO1_MAX_ANGLE,AUTO_SERVO1_LOW,AUTO_SERVO1_HIGH);
+		__HAL_TIM_SET_COMPARE(&AUTO_SERVO1_TIM_HANDLER,AUTO_SERVO1_TIM_CH,PWM);
+	}
+	if(servo_id == AUTO_SERVO2_ID){
+		//角度範囲を制限
+		angle  = fmaxf(fminf(angle, AUTO_SERVO2_MAX_ANGLE), AUTO_SERVO2_MIN_ANGLE);
+		//対応するPWMの値を取得
+		PWM = map(angle,AUTO_SERVO2_MIN_ANGLE,AUTO_SERVO2_MAX_ANGLE,AUTO_SERVO2_LOW,AUTO_SERVO2_HIGH);
+		__HAL_TIM_SET_COMPARE(&AUTO_SERVO2_TIM_HANDLER,AUTO_SERVO2_TIM_CH,PWM);
+	}
+
+}
+
+/*
+ * タイマENABLE
+ * @param
+ * @return
+ */
+void ServoEnable(void) {
+/*	HAL_TIM_PWM_Start(&SERVO1_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO2_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO3_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO4_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO5_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO6_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO7_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO8_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO9_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO10_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO11_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Start(&SERVO12_TIM_HANDLER, SERVO9_TIM_CH);
+	*/
+
+	HAL_TIM_PWM_Start(&AUTO_SERVO1_TIM_HANDLER, AUTO_SERVO1_TIM_CH);
+	HAL_TIM_PWM_Start(&AUTO_SERVO2_TIM_HANDLER, AUTO_SERVO2_TIM_CH);
+
+	/*
+	ServoSetAngle(SERVO1_ZERO_ANGLE,SERVO1_ID);
+	ServoSetAngle(SERVO2_ZERO_ANGLE,SERVO2_ID);
+	ServoSetAngle(SERVO3_ZERO_ANGLE,SERVO3_ID);
+	ServoSetAngle(SERVO4_ZERO_ANGLE,SERVO4_ID);
+	ServoSetAngle(SERVO5_ZERO_ANGLE,SERVO5_ID);
+	ServoSetAngle(SERVO6_ZERO_ANGLE,SERVO6_ID);
+	ServoSetAngle(SERVO7_ZERO_ANGLE,SERVO7_ID);
+	ServoSetAngle(SERVO8_ZERO_ANGLE,SERVO8_ID);
+	ServoSetAngle(SERVO9_ZERO_ANGLE,SERVO9_ID);
+	ServoSetAngle(SERVO10_ZERO_ANGLE,SERVO10_ID);
+	ServoSetAngle(SERVO11_ZERO_ANGLE,SERVO11_ID);
+	ServoSetAngle(SERVO12_ZERO_ANGLE,SERVO12_ID);
+	*/
+
+	ServoSetAngle(AUTO_SERVO1_ZERO_ANGLE,AUTO_SERVO1_ID);
+	ServoSetAngle(AUTO_SERVO2_ZERO_ANGLE,AUTO_SERVO2_ID);
+
+}
+
+/*
+ * タイマDISABLE
+ * @param
+ * @return
+ */
+void ServoDisable(void) {
+	/*
+	HAL_TIM_PWM_Stop(&SERVO1_TIM_HANDLER, SERVO1_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO2_TIM_HANDLER, SERVO2_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO3_TIM_HANDLER, SERVO3_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO4_TIM_HANDLER, SERVO4_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO5_TIM_HANDLER, SERVO5_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO6_TIM_HANDLER, SERVO6_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO7_TIM_HANDLER, SERVO7_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO8_TIM_HANDLER, SERVO8_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO9_TIM_HANDLER, SERVO9_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO10_TIM_HANDLER, SERVO10_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO11_TIM_HANDLER, SERVO11_TIM_CH);
+	HAL_TIM_PWM_Stop(&SERVO12_TIM_HANDLER, SERVO12_TIM_CH);
+	*/
+
+
+	HAL_TIM_PWM_Stop(&AUTO_SERVO1_TIM_HANDLER, AUTO_SERVO1_TIM_CH);
+	HAL_TIM_PWM_Stop(&AUTO_SERVO2_TIM_HANDLER, AUTO_SERVO2_TIM_CH);
+}
